@@ -594,3 +594,23 @@ table.grid a.link { color: var(--brand-dark); text-decoration: none; }
 }
 .btn-outline:hover { background: #eaf4fb; }
 .certsel-foot .btn-grey { border-radius: 20px; padding: 9px 22px; background: #eef2f5; color: var(--ink); }
+
+/* ================= USER MENU / LOGOUT ================= */
+.user-menu { position: relative; }
+.user-menu .avatar { border: none; cursor: pointer; padding: 0; }
+.user-dropdown {
+  position: absolute; right: 0; top: calc(100% + 8px); min-width: 180px;
+  background: #fff; border: 1px solid var(--line); border-radius: 8px;
+  box-shadow: 0 12px 30px rgba(30,70,110,.18); z-index: 60; overflow: hidden;
+}
+.user-dropdown .ud-head { padding: 11px 14px; border-bottom: 1px solid var(--line); }
+.user-dropdown .ud-name { display: block; font-size: 13px; font-weight: 700; color: var(--ink); }
+.user-dropdown .ud-sub { display: block; font-size: 11px; color: var(--ink-soft); margin-top: 1px; }
+.user-dropdown .ud-item {
+  width: 100%; display: flex; align-items: center; gap: 9px;
+  border: none; background: #fff; cursor: pointer; text-align: left;
+  padding: 11px 14px; font-size: 13px; color: var(--ink);
+}
+.user-dropdown .ud-item:hover { background: #fdeeec; color: #c0392b; }
+.user-dropdown .ud-item svg { width: 15px; height: 15px; }
+.user-dropdown .ud-item:hover svg { color: #c0392b; }
