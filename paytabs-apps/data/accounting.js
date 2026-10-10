@@ -40,46 +40,64 @@ const CORE_ACQ = ["ADIB", "ADCB", "NI", "CIB", "Al Rajhi Bank", "ANB", "FAB", "V
 ACQUIRERS.forEach(function (a) { ACQ_WEIGHTED.push(a); });          // 1x each
 CORE_ACQ.forEach(function (a) { for (let k = 0; k < 7; k++) ACQ_WEIGHTED.push(a); }); // +7x core
 
+// Spread data across EVERY month (last 14 months), each month well populated,
+// so searching/viewing any month returns records.
+const MONTHS_BACK      = 14;   // Sep 2025 .. Oct 2026
+const PER_MONTH_MIN    = 6;    // at least 6 per month
+const PER_MONTH_EXTRA  = 12;   // + up to this many more, for search richness
+const ANCHOR_Y = 2026, ANCHOR_M = 9, ANCHOR_D = 10;  // "today" = 10/Oct/2026
+
 const POOL = [];
 (function build() {
   const r = rng(26092026);
-  for (let i = 0; i < 420; i++) {
-    const acquirer = ACQ_WEIGHTED[Math.floor(r() * ACQ_WEIGHTED.length)];
-    const currency = CUR_BY_ACQ[acquirer] || "AED";
-    const type = TYPES[Math.floor(r() * TYPES.length)];
-    const cls = CLASSES[Math.floor(r() * CLASSES.length)];
-    const method = METHODS[Math.floor(r() * METHODS.length)];
-    const accType = ACCOUNT_TYPES[Math.floor(r() * ACCOUNT_TYPES.length)];
-    const status = r() > 0.82 ? STATUSES[1 + Math.floor(r() * 2)] : "A";
-    const amount = Math.round((1 + r() * 2999) * 100) / 100;
-    const fees = Math.round(amount * (0.015 + r() * 0.02) * 100) / 100;
-    const tax = Math.round(fees * 0.05 * 100) / 100;
+  let i = 0;
+  for (let mi = 0; mi < MONTHS_BACK; mi++) {
+    const base = new Date(Date.UTC(ANCHOR_Y, ANCHOR_M - mi, 1));
+    const year = base.getUTCFullYear();
+    const month = base.getUTCMonth();
+    const daysInMonth = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
+    const maxDay = (mi === 0) ? ANCHOR_D : daysInMonth;   // current month capped at today
+    const perMonth = PER_MONTH_MIN + Math.floor(r() * (PER_MONTH_EXTRA + 1));
 
-    const d = new Date(Date.UTC(2026, 8, 29));
-    d.setUTCDate(d.getUTCDate() - Math.floor(r() * 90));
-    const acc = new Date(d.getTime());
-    acc.setUTCDate(acc.getUTCDate() + Math.floor(r() * 2));
-    const hh = pad(Math.floor(r() * 24)), mm = pad(Math.floor(r() * 60));
+    for (let k = 0; k < perMonth; k++) {
+      i++;
+      const acquirer = ACQ_WEIGHTED[Math.floor(r() * ACQ_WEIGHTED.length)];
+      const currency = CUR_BY_ACQ[acquirer] || "AED";
+      const type = TYPES[Math.floor(r() * TYPES.length)];
+      const cls = CLASSES[Math.floor(r() * CLASSES.length)];
+      const method = METHODS[Math.floor(r() * METHODS.length)];
+      const accType = ACCOUNT_TYPES[Math.floor(r() * ACCOUNT_TYPES.length)];
+      const status = r() > 0.82 ? STATUSES[1 + Math.floor(r() * 2)] : "A";
+      const amount = Math.round((1 + r() * 2999) * 100) / 100;
+      const fees = Math.round(amount * (0.015 + r() * 0.02) * 100) / 100;
+      const tax = Math.round(fees * 0.05 * 100) / 100;
 
-    POOL.push({
-      ref: "EXP" + (2600000000000 + Math.floor(r() * 99999999999)),
-      title: type + " transaction " + (1000 + i),
-      txDate: fmt(d), txIso: iso(d), time: hh + ":" + mm,
-      accDate: fmt(acc),
-      type, class: cls, method, acquirer, accountType: accType,
-      profile: PROFILES[Math.floor(r() * PROFILES.length)],
-      account: ACCOUNTS[Math.floor(r() * ACCOUNTS.length)],
-      merchantId: 50000 + Math.floor(r() * 49999),
-      currency, amount, fees, tax, status
-    });
+      const day = 1 + Math.floor(r() * maxDay);
+      const d = new Date(Date.UTC(year, month, day));
+      const acc = new Date(d.getTime());
+      acc.setUTCDate(acc.getUTCDate() + Math.floor(r() * 2));
+      const hh = pad(Math.floor(r() * 24)), mm = pad(Math.floor(r() * 60));
+
+      POOL.push({
+        ref: "EXP" + (2600000000000 + Math.floor(r() * 99999999999)),
+        title: type + " transaction " + (1000 + i),
+        txDate: fmt(d), txIso: iso(d), time: hh + ":" + mm,
+        accDate: fmt(acc),
+        type, class: cls, method, acquirer, accountType: accType,
+        profile: PROFILES[Math.floor(r() * PROFILES.length)],
+        account: ACCOUNTS[Math.floor(r() * ACCOUNTS.length)],
+        merchantId: 50000 + Math.floor(r() * 49999),
+        currency, amount, fees, tax, status
+      });
+    }
   }
   POOL.sort(function (a, b) { return b.txIso < a.txIso ? -1 : 1; });
 })();
 
-// ---- Confirmed list (status A), newest first ----
+// ---- Confirmed list (status A), newest first; show every month ----
 function getConfirmed(limit) {
   return POOL.filter(function (t) { return t.status === "A"; })
-    .slice(0, limit || 40);
+    .slice(0, limit || 200);
 }
 
 // ---- Date helpers for range filtering (DD/Mon/YYYY -> comparable) ----
