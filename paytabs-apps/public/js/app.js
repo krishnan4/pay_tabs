@@ -32,10 +32,40 @@
   function clearSession() { try { localStorage.removeItem("pt_token"); localStorage.removeItem("pt_user"); } catch (e) {} }
   function sessionExpired() {
     token = null; clearSession();
+    closeUserMenu();
     document.getElementById("app").hidden = true;
     document.getElementById("login").hidden = false;
     if (loginErr) loginErr.textContent = "Session expired — please sign in again.";
   }
+
+  // ---- user menu / logout ----
+  function closeUserMenu() {
+    var d = document.getElementById("userDropdown");
+    if (d) d.hidden = true;
+  }
+  function logout() {
+    token = null; clearSession(); closeUserMenu();
+    document.getElementById("password").value = "";
+    if (loginErr) loginErr.textContent = "";
+    document.getElementById("app").hidden = true;
+    document.getElementById("login").hidden = false;
+    if (window.history && window.history.pushState) window.history.pushState({}, "", "/");
+    window.scrollTo(0, 0);
+  }
+  (function wireUserMenu() {
+    var btn = document.getElementById("avatarBtn");
+    var dd = document.getElementById("userDropdown");
+    if (btn) btn.addEventListener("click", function (e) {
+      e.stopPropagation();
+      dd.hidden = !dd.hidden;
+    });
+    var lo = document.getElementById("logoutBtn");
+    if (lo) lo.addEventListener("click", logout);
+    document.addEventListener("click", function (e) {
+      var m = document.getElementById("userMenu");
+      if (m && !m.contains(e.target)) closeUserMenu();
+    });
+  })();
   function toast(msg) {
     var t = document.getElementById("toast");
     t.textContent = msg; t.hidden = false;
@@ -185,7 +215,9 @@
   function finishLogin() {
     if (!pendingAuth) return;
     token = pendingAuth.token;
-    document.getElementById("userName").textContent = pendingAuth.user.name || "SysAdmin";
+    var nm = pendingAuth.user.name || "SysAdmin";
+    document.getElementById("userName").textContent = nm;
+    document.getElementById("udName").textContent = nm;
     pendingAuth = null;
     document.getElementById("certModal").hidden = true;
     document.getElementById("certSelectModal").hidden = true;
@@ -944,6 +976,7 @@ why_bar(h) + '<span class="bar-lbl">' + esc(x.label) + "</span></div>";
       .then(function (r) {
         if (r.status === 401) { sessionExpired(); return; }
         document.getElementById("userName").textContent = name;
+        document.getElementById("udName").textContent = name;
         document.getElementById("login").hidden = true;
         document.getElementById("app").hidden = false;
         applyPath();                         // open the screen named in the URL
