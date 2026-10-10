@@ -1,0 +1,19 @@
+{
+  "name": "paytabs-portal",
+  "version": "1.0.0",
+  "description": "PayTabs portal demo (login + reports dashboard) with an Express backend ready for a real database.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "gen-certs": "node scripts/gen-certs.js",
+    "start:mtls": "cross-env TLS_MODE=mtls node server.js",
+    "start:proxy": "cross-env TLS_MODE=proxy node server.js"
+  },
+  "dependencies": {
+    "cross-env": "^7.0.3",
+    "exceljs": "^4.4.0",
+    "express": "^4.19.2",
+    "node-forge": "^1.3.1"
+  }
+}

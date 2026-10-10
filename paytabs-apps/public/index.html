@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PayTabs Portal</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+  <!-- ============ LOGIN ============ -->
+  <section id="login">
+    <div class="pt-logo brand-top">
+      <svg class="mark" viewBox="0 0 48 48" aria-hidden="true">
+        <defs><linearGradient id="ptg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#36c0ef"/><stop offset="1" stop-color="#1f93d6"/></linearGradient></defs>
+        <path d="M11 5h17.5c7.2 0 13 5.3 13 11.8s-5.8 11.8-13 11.8H21V43H11z" fill="url(#ptg)"/>
+        <path d="M21 13.6h7.3a5.2 5.2 0 0 1 0 10.4H21z" fill="#fff"/>
+        <path d="M25.2 15.7l6.4 2.8-6.4 2.8z" fill="#2e3192"/>
+      </svg>
+      <span class="word"><span class="pay">Pay</span><span class="tabs">Tabs</span></span>
+    </div>
+    <div class="login-wrap">
+      <div class="lang">English <span class="flag">EN</span></div>
+      <div class="login-card">
+        <form id="loginForm" autocomplete="off">
+          <div class="field-col">
+            <input class="field" id="email" type="email" placeholder="Email" required>
+            <input class="field" id="password" type="password" placeholder="Password" required>
+          </div>
+          <button type="submit" class="signin">Sign In</button>
+        </form>
+        <div class="login-err" id="loginErr"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ APP SHELL ============ -->
+  <div id="app" hidden>
+    <aside class="sidebar">
+      <div class="logo-box pt-logo">
+        <svg class="mark" viewBox="0 0 48 48" aria-hidden="true">
+          <defs><linearGradient id="ptg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#36c0ef"/><stop offset="1" stop-color="#1f93d6"/></linearGradient></defs>
+          <path d="M11 5h17.5c7.2 0 13 5.3 13 11.8s-5.8 11.8-13 11.8H21V43H11z" fill="url(#ptg2)"/>
+          <path d="M21 13.6h7.3a5.2 5.2 0 0 1 0 10.4H21z" fill="#fff"/>
+          <path d="M25.2 15.7l6.4 2.8-6.4 2.8z" fill="#2e3192"/>
+        </svg>
+        <span class="word"><span class="pay">Pay</span><span class="tabs">Tabs</span></span>
+      </div>
+      <nav class="nav" id="nav"></nav>
+    </aside>
+
+    <div class="main">
+      <div class="topbar">
+        <span class="sysadmin" id="userName">SysAdmin</span>
+        <span class="spacer"></span>
+        <span class="lang2">English <span class="flag">EN</span></span>
+        <span class="search">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3-3"/></svg>
+          <input placeholder="Search..." />
+        </span>
+        <span class="avatar"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6z"/></svg></span>
+      </div>
+
+      <div class="breadcrumb" id="breadcrumb">Home</div>
+
+      <div class="content" id="content"><!-- views render here --></div>
+    </div>
+  </div>
+
+  <!-- ============ MODALS ============ -->
+  <div class="modal-overlay" id="txnModal" hidden>
+    <div class="modal txn-modal" id="txnModalBody"><!-- filled by JS --></div>
+  </div>
+
+  <div class="modal-overlay" id="cbModal" hidden>
+    <div class="modal cb-modal">
+      <div class="modal-head">
+        <strong>ADD CHARGEBACK</strong>
+        <button class="modal-x" data-close-cb>&times;</button>
+      </div>
+      <div class="modal-body">
+        <select id="cbType" class="cb-input">
+          <option>Full Chargeback</option>
+          <option>Partial Chargeback</option>
+          <option>Chargeback - No debit</option>
+        </select>
+        <textarea id="cbReason" class="cb-input cb-reason" placeholder="Chargeback Reason"></textarea>
+        <div class="cb-toggles">
+          <span class="cb-group-label">AntiFraud:</span>
+          <label class="tgl"><input type="checkbox" id="cbBlockCard"><span class="slider"></span> Block Card</label>
+          <label class="tgl"><input type="checkbox" id="cbBlockEmail"><span class="slider"></span> Block Email</label>
+        </div>
+        <div class="cb-toggles">
+          <span class="cb-group-label">Refunds:</span>
+          <label class="tgl"><input type="checkbox" id="cbBlockRefund"><span class="slider"></span> Block Refund</label>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn-grey" data-close-cb>Cancel</button>
+        <button class="btn-green" id="cbSubmit">Submit</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Select a certificate dialog (DEMO UI — mimics the browser picker) -->
+  <div class="modal-overlay" id="certSelectModal" hidden>
+    <div class="modal certsel-card" id="certSelectCard"><!-- built by app.js --></div>
+  </div>
+
+  <!-- Certificate Information dialog (DEMO UI — not real mTLS verification) -->
+  <div class="modal-overlay" id="certModal" hidden>
+    <div class="modal cert-card" id="certCard"><!-- built by app.js --></div>
+  </div>
+
+  <div class="toast" id="toast" hidden></div>
+
+  <script src="/js/app.js"></script>
+</body>
+</html>
