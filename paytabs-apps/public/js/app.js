@@ -20,7 +20,21 @@
       opts.headers["Content-Type"] = "application/json";
       opts.body = JSON.stringify(opts.body);
     }
-    return fetch(path, opts).then(function (r) { return r.json(); });
+    return fetch(path, opts).then(function (r) {
+      if (r.status === 401) { sessionExpired(); }   // stale/expired session -> back to login
+      return r.json();
+    });
+  }
+  // --- session persistence so URL deep-links survive a reload (for automation) ---
+  function saveSession(tok, name) {
+    try { localStorage.setItem("pt_token", tok); localStorage.setItem("pt_user", name || "SysAdmin"); } catch (e) {}
+  }
+  function clearSession() { try { localStorage.removeItem("pt_token"); localStorage.removeItem("pt_user"); } catch (e) {} }
+  function sessionExpired() {
+    token = null; clearSession();
+    document.getElementById("app").hidden = true;
+    document.getElementById("login").hidden = false;
+    if (loginErr) loginErr.textContent = "Session expired — please sign in again.";
   }
   function toast(msg) {
     var t = document.getElementById("toast");
@@ -177,8 +191,9 @@
     document.getElementById("certSelectModal").hidden = true;
     document.getElementById("login").hidden = true;
     document.getElementById("app").hidden = false;
+    saveSession(token, document.getElementById("userName").textContent);
     window.scrollTo(0, 0);
-    route("home");
+    applyPath();   // go to the screen in the URL (deep-link), else home
   }
   function cancelCert() {
     pendingAuth = null;                 // discard the held session
@@ -225,15 +240,50 @@
   }
 
   /* ==================================================================
-     ROUTER
+     ROUTER  (URL-based, so each screen has its own link for automation)
   ================================================================== */
-  function route(name) {
+  var PATHS = {
+    home: "/home",
+    transactions: "/transactions",
+    accounting: "/finance",
+    reports: "/reports"
+  };
+
+  // Render a top-level screen and (optionally) push its URL.
+  function route(name, push) {
     setActive(name);
+    if (push !== false && window.history && window.history.pushState) {
+      var p = PATHS[name] || "/home";
+      if (location.pathname !== p) window.history.pushState({ view: name }, "", p);
+    }
     if (name === "home") return renderHome();
     if (name === "transactions") return renderTxnSearch();
     if (name === "accounting") return renderFinance();
     if (name === "reports") return renderReports();
   }
+
+  // Small helper to set the URL without re-rendering (used by sub-screens).
+  function setPath(p) {
+    if (window.history && window.history.pushState && location.pathname !== p) {
+      window.history.pushState({}, "", p);
+    }
+  }
+
+  // Resolve the current URL to a screen (used on load, on deep-link, back/forward).
+  function applyPath() {
+    var p = (location.pathname || "/home").replace(/\/+$/, "") || "/home";
+    if (p === "/finance/accounting/search") { setActive("accounting"); return renderAccountingSearch(false); }
+    if (p === "/finance/accounting")        { setActive("accounting"); return renderConfirmedList(false); }
+    if (p === "/finance")                   return route("accounting", false);
+    if (p === "/transactions")              return route("transactions", false);
+    if (p === "/reports")                   return route("reports", false);
+    return route("home", false);
+  }
+
+  // Back / forward buttons (only meaningful once logged in).
+  window.addEventListener("popstate", function () {
+    if (!document.getElementById("app").hidden) applyPath();
+  });
 
   /* ==================================================================
      HOME / DASHBOARD
@@ -379,8 +429,9 @@ why_bar(h) + '<span class="bar-lbl">' + esc(x.label) + "</span></div>";
   }
 
   // ---- Accounting Confirmed Transaction List ----
-  function renderConfirmedList() {
+  function renderConfirmedList(push) {
     setActive("accounting");
+    if (push !== false) setPath("/finance/accounting");
     crumbs(["Home", "Finance", "Confirmed Transactions"]);
     content.innerHTML =
       '<div class="panel">' +
@@ -392,7 +443,7 @@ why_bar(h) + '<span class="bar-lbl">' + esc(x.label) + "</span></div>";
         "</div>" +
         '<div class="table-scroll" id="confBody"><div class="empty-msg">Loading…</div></div>' +
       "</div>";
-    document.getElementById("goAcctSearch").addEventListener("click", renderAccountingSearch);
+    document.getElementById("goAcctSearch").addEventListener("click", function () { renderAccountingSearch(); });
 
     api("/api/accounting/confirmed").then(function (d) {
       var head = "<tr><th>Ref</th><th>Tx Date</th><th>Type</th><th>Method</th><th>Acquirer</th>" +
@@ -416,8 +467,9 @@ why_bar(h) + '<span class="bar-lbl">' + esc(x.label) + "</span></div>";
   // ---- Accounting Search (Quick / Advanced tabs) ----
   var advMs = null;   // advanced multi-select getters, built once per page visit
 
-  function renderAccountingSearch() {
+  function renderAccountingSearch(push) {
     setActive("accounting");
+    if (push !== false) setPath("/finance/accounting/search");
     crumbs(["Home", "Finance", "Confirmed Transactions", "Accounting Search"]);
     ensureMeta().then(function (m) {
       // Build the page shell with BOTH forms mounted (hidden-toggle keeps each
@@ -880,4 +932,22 @@ why_bar(h) + '<span class="bar-lbl">' + esc(x.label) + "</span></div>";
   function statusName(s) { return ({ A: "Authorised", E: "Error", H: "Hold", D: "Declined" })[s] || s; }
   function val(id) { var e = document.getElementById(id); return e ? e.value.trim() : ""; }
   function kv(k, v) { return '<tr><td class="k">' + esc(k) + '</td><td class="v">' + esc(v) + "</td></tr>"; }
+
+  /* -------------------- restore session on load (deep-link friendly) -------------------- */
+  (function restore() {
+    var saved = null, name = "SysAdmin";
+    try { saved = localStorage.getItem("pt_token"); name = localStorage.getItem("pt_user") || "SysAdmin"; } catch (e) {}
+    if (!saved) return;                      // not logged in -> normal login flow
+    token = saved;
+    // Verify the token is still valid (server may have restarted) before showing the app.
+    fetch("/api/finance/meta", { headers: { Authorization: "Bearer " + token } })
+      .then(function (r) {
+        if (r.status === 401) { sessionExpired(); return; }
+        document.getElementById("userName").textContent = name;
+        document.getElementById("login").hidden = true;
+        document.getElementById("app").hidden = false;
+        applyPath();                         // open the screen named in the URL
+      })
+      .catch(function () { /* offline -> stay on login */ });
+  })();
 })();
