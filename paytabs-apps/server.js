@@ -309,7 +309,7 @@ app.get("/api/finance/meta", authMiddleware, (req, res) => {
 
 // confirmed transaction list
 app.get("/api/accounting/confirmed", authMiddleware, (req, res) => {
-  res.json({ ok: true, rows: acct.getConfirmed(40) });
+  res.json({ ok: true, rows: acct.getConfirmed(200) });
 });
 
 // quick / advanced search
