@@ -58,7 +58,18 @@
           <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3-3"/></svg>
           <input placeholder="Search..." />
         </span>
-        <span class="avatar"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6z"/></svg></span>
+        <div class="user-menu" id="userMenu">
+          <button class="avatar" id="avatarBtn" aria-label="Account menu" aria-haspopup="true">
+            <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6z"/></svg>
+          </button>
+          <div class="user-dropdown" id="userDropdown" hidden>
+            <div class="ud-head"><span class="ud-name" id="udName">SysAdmin</span><span class="ud-sub">Signed in</span></div>
+            <button class="ud-item" id="logoutBtn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+              Sign out
+            </button>
+          </div>
+        </div>
       </div>
 
       <div class="breadcrumb" id="breadcrumb">Home</div>
