@@ -163,9 +163,9 @@ app.post("/api/login", (req, res) => {
   }
   // Demo list for the "Select a certificate" dialog (mimics the browser picker).
   const certificates = [
-    mkCert("Novel Porley", "Paytabs", "5F A2 1C 09 3E B7 00 D4", "9B:2E:5F:C1:74:A0:3D:88:16:FA:4C:90:E7:52:1B:6D:AA:30:9C:E4", "01/Jan/2026", "01/Jan/2027"),
-    mkCert("Novel Porley", "Paytabs", "6A 44 90 7F 21 C8 15 02", "4D:11:88:A3:6E:02:FB:57:90:21:CC:48:17:3A:5E:92:B0:66:1D:7E", "15/Mar/2026", "15/Mar/2027"),
-    mkCert("Novel Porley", "Paytabs", "71 03 55 E1 9B 44 3D 61", "C7:90:2A:5B:38:E4:11:6F:AA:0D:9C:E2:52:81:4B:6D:33:7F:08:A1", "10/Jun/2026", "10/Jun/2027")
+    mkCert("hari", "Paytabs", "5F A2 1C 09 3E B7 00 D4", "9B:2E:5F:C1:74:A0:3D:88:16:FA:4C:90:E7:52:1B:6D:AA:30:9C:E4", "01/Jan/2026", "01/Jan/2027"),
+    mkCert("hari", "Paytabs", "6A 44 90 7F 21 C8 15 02", "4D:11:88:A3:6E:02:FB:57:90:21:CC:48:17:3A:5E:92:B0:66:1D:7E", "15/Mar/2026", "15/Mar/2027"),
+    mkCert("hari", "Paytabs", "71 03 55 E1 9B 44 3D 61", "C7:90:2A:5B:38:E4:11:6F:AA:0D:9C:E2:52:81:4B:6D:33:7F:08:A1", "10/Jun/2026", "10/Jun/2027")
   ];
   res.json({ ok: true, token, user: { name: user.name }, certificates });
 });
