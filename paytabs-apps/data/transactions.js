@@ -82,6 +82,14 @@ const POOL = [];
       notes: []
     });
   }
+
+  // Update target transaction ref to 74382316186828132429401 and prioritize at top
+  const targetIdx = POOL.findIndex(t => t.ref === "PTB2337180453247");
+  if (targetIdx !== -1) {
+    const [target] = POOL.splice(targetIdx, 1);
+    target.ref = "74382316186828132429401";
+    POOL.unshift(target);
+  }
 })();
 
 const STATUS_LABEL = { A: "Authorised", E: "Error", H: "Hold", D: "Declined" };
@@ -99,7 +107,15 @@ function search(f) {
   f = f || {};
   let out = POOL.filter(function (t) {
     if (f.title && !t.merchant.toLowerCase().includes(String(f.title).toLowerCase())) return false;
-    if (f.ref && !t.ref.toLowerCase().includes(String(f.ref).toLowerCase())) return false;
+    if (f.ref) {
+      const q = String(f.ref).toLowerCase();
+      const match = t.ref.toLowerCase().includes(q) ||
+        (t.ref === "74382316186828132429401" && (
+          "ptb2337180453247".includes(q) ||
+          "ptb74382316186828132429401".includes(q)
+        ));
+      if (!match) return false;
+    }
     if (f.merchantId && String(t.merchantId) !== String(f.merchantId)) return false;
     if (f.accountId && String(t.accountId) !== String(f.accountId)) return false;
     if (f.type && t.type !== f.type) return false;
@@ -112,7 +128,9 @@ function search(f) {
 }
 
 function getByRef(ref) {
-  return POOL.find(function (t) { return t.ref === ref; }) || null;
+  return POOL.find(function (t) {
+    return t.ref === ref || (t.ref === "74382316186828132429401" && (ref === "PTB2337180453247" || ref === "PTB74382316186828132429401"));
+  }) || null;
 }
 
 function addChargeback(ref, data) {
