@@ -6,23 +6,23 @@
 
 const MERCHANTS = [
   { id: 112812, name: "BEYOND LINKS PORTAL" },
-  { id: 76486,  name: "HKS GLOBAL GROUP DMCC" },
+  { id: 76486, name: "HKS GLOBAL GROUP DMCC" },
   { id: 137913, name: "Heathrow Trading LLC" },
-  { id: 55880,  name: "Beyond Links Portal" },
-  { id: 90321,  name: "Gulf Mart Online" },
-  { id: 84510,  name: "Skyline Electronics" },
-  { id: 99102,  name: "Oasis Fashion House" },
-  { id: 71234,  name: "Falcon Pay Services" }
+  { id: 55880, name: "Beyond Links Portal" },
+  { id: 90321, name: "Gulf Mart Online" },
+  { id: 84510, name: "Skyline Electronics" },
+  { id: 99102, name: "Oasis Fashion House" },
+  { id: 71234, name: "Falcon Pay Services" }
 ];
-const TYPES    = ["Sale", "Auth", "Capture", "Void", "Refund", "Chargeback"];
-const METHODS  = ["Visa", "MasterCard", "ApplePay", "Mada", "Amex"];
-const ACQUIRERS= ["NI", "Amex", "Mada", "Checkout"];
+const TYPES = ["Sale", "Auth", "Capture", "Void", "Refund", "Chargeback"];
+const METHODS = ["Visa", "MasterCard", "ApplePay", "Mada", "Amex"];
+const ACQUIRERS = ["NI", "Amex", "Mada", "Checkout"];
 const STATUSES = ["A", "E", "H", "D"]; // Authorised / Error / Hold / Declined
 const CHANNELS = ["Transaction API", "Hosted Payment Page", "Shopify", "MOTO"];
 
 function pad(n) { return n < 10 ? "0" + n : "" + n; }
 function fmtDate(d) {
-  const mon = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][d.getUTCMonth()];
+  const mon = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][d.getUTCMonth()];
   return pad(d.getUTCDate()) + "/" + mon + "/" + d.getUTCFullYear();
 }
 
@@ -32,6 +32,13 @@ function makeRng(seed) {
   if (s <= 0) s += 2147483646;
   return function () { s = (s * 16807) % 2147483647; return (s - 1) / 2147483646; };
 }
+
+const CUSTOM_REFS = {
+  "PTB2337180453247": "74382316186828132429401",
+  "PTB2387759056255": "74382316186828132431876",
+  "PTB2372423597305": "74382316186828132432641",
+  "PTB2333687816451": "74382316186828132433495"
+};
 
 const POOL = [];
 (function build() {
@@ -83,11 +90,18 @@ const POOL = [];
     });
   }
 
-  // Update target transaction ref to 74382316186828132429401 and prioritize at top
-  const targetIdx = POOL.findIndex(t => t.ref === "PTB2337180453247");
+  // Map of original mock ref -> custom ref
+  for (const [origRef, newRef] of Object.entries(CUSTOM_REFS)) {
+    const item = POOL.find(t => t.ref === origRef);
+    if (item) {
+      item.ref = newRef;
+    }
+  }
+
+  // Prioritize target1 at top if desired
+  const targetIdx = POOL.findIndex(t => t.ref === "74382316186828132429401");
   if (targetIdx !== -1) {
     const [target] = POOL.splice(targetIdx, 1);
-    target.ref = "74382316186828132429401";
     POOL.unshift(target);
   }
 })();
@@ -109,11 +123,15 @@ function search(f) {
     if (f.title && !t.merchant.toLowerCase().includes(String(f.title).toLowerCase())) return false;
     if (f.ref) {
       const q = String(f.ref).toLowerCase();
-      const match = t.ref.toLowerCase().includes(q) ||
-        (t.ref === "74382316186828132429401" && (
-          "ptb2337180453247".includes(q) ||
-          "ptb74382316186828132429401".includes(q)
-        ));
+      let match = t.ref.toLowerCase().includes(q) || ("ptb" + t.ref).toLowerCase().includes(q);
+      if (!match) {
+        for (const [origRef, newRef] of Object.entries(CUSTOM_REFS)) {
+          if (t.ref === newRef && origRef.toLowerCase().includes(q)) {
+            match = true;
+            break;
+          }
+        }
+      }
       if (!match) return false;
     }
     if (f.merchantId && String(t.merchantId) !== String(f.merchantId)) return false;
@@ -129,7 +147,14 @@ function search(f) {
 
 function getByRef(ref) {
   return POOL.find(function (t) {
-    return t.ref === ref || (t.ref === "74382316186828132429401" && (ref === "PTB2337180453247" || ref === "PTB74382316186828132429401"));
+    if (t.ref === ref) return true;
+    if (("ptb" + t.ref).toLowerCase() === String(ref).toLowerCase()) return true;
+    for (const [origRef, newRef] of Object.entries(CUSTOM_REFS)) {
+      if (t.ref === newRef && (origRef.toLowerCase() === String(ref).toLowerCase() || ("ptb" + newRef).toLowerCase() === String(ref).toLowerCase())) {
+        return true;
+      }
+    }
+    return false;
   }) || null;
 }
 
