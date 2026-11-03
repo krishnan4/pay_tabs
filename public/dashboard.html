@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PayTabs | SysAdmin</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <div class="app">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="logo">
+        <div class="mark">P</div>
+        <span class="brand-text">PayTabs</span>
+      </div>
+      <nav class="nav">
+        <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9.5 12 3l9 6.5V21H3z"/></svg><span>Home</span></a>
+        <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="7" r="3"/><path d="M2 21v-1a6 6 0 0 1 12 0v1M16 11a3 3 0 1 0 0-6"/></svg><span>Merchants</span></a>
+        <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a8 8 0 0 1 16 0v1"/></svg><span>Profiles</span></a>
+        <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M9 18h6"/></svg><span>Terminals</span></a>
+        <a href="#" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h10"/></svg><span>Transactions</span></a>
+        <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M5 9l7-7 7 7"/></svg><span>Deposit</span></a>
+        <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22V2M5 15l7 7 7-7"/></svg><span>Refund</span></a>
+        <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3 8-8M4 12a8 8 0 1 0 8-8"/></svg><span>Underwriting</span></a>
+        <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><span>Ongoing Screening</span></a>
+        <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg><span>Finance</span></a>
+        <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h8"/></svg><span>Reports</span></a>
+        <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="7" r="3"/><circle cx="17" cy="9" r="2"/><path d="M2 21v-1a6 6 0 0 1 12 0v1"/></svg><span>Resellers</span></a>
+        <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg><span>Support</span></a>
+      </nav>
+    </aside>
+
+    <!-- Main -->
+    <div class="main">
+      <header class="topbar">
+        <div class="title">SysAdmin</div>
+        <div class="right">
+          <div class="search">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+            <input type="text" id="searchInput" placeholder="Search..." />
+          </div>
+          <div class="user-chip">
+            <div class="avatar" id="avatar">A</div>
+            <span id="userName">Admin</span>
+          </div>
+          <button class="logout-btn" id="logoutBtn">Logout</button>
+        </div>
+      </header>
+
+      <main class="content">
+        <div class="breadcrumb">Home / <b>Transactions</b></div>
+
+        <!-- Stats -->
+        <section class="stats" id="stats">
+          <div class="stat-card"><div class="label">Total Transactions</div><div class="value" id="statTotal">—</div></div>
+          <div class="stat-card"><div class="label">Total Amount</div><div class="value" id="statSum">—</div></div>
+          <div class="stat-card"><div class="label">Completed</div><div class="value green" id="statCompleted">—</div></div>
+          <div class="stat-card"><div class="label">Pending</div><div class="value amber" id="statPending">—</div></div>
+        </section>
+
+        <!-- Table panel -->
+        <section class="panel">
+          <div class="panel-head">
+            <h2>Transactions</h2>
+            <div class="actions">
+              <input type="text" id="tableSearch" placeholder="Filter transactions..." />
+              <button class="btn-add" id="addBtn">+ Add Transaction</button>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Title</th>
+                  <th>Generated On</th>
+                  <th>Summary</th>
+                  <th>Amount</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="tableBody">
+                <tr><td colspan="7" class="empty">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="pagination" id="pagination"></div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <!-- Add / Edit Modal -->
+  <div class="modal-overlay" id="modal">
+    <div class="modal">
+      <div class="modal-head">
+        <h3 id="modalTitle">Add Transaction</h3>
+        <button class="close" id="modalClose">&times;</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="txnId" />
+        <div class="field">
+          <label>Title</label>
+          <input type="text" id="fTitle" placeholder="e.g. Accounting Aggregation Transactions" />
+        </div>
+        <div class="field">
+          <label>Generated On</label>
+          <input type="text" id="fGenerated" placeholder="e.g. 03/Oct/2026 08:46" />
+        </div>
+        <div class="field">
+          <label>Summary</label>
+          <input type="text" id="fSummary" placeholder="e.g. Aggregated transactions in Sep 2026" />
+        </div>
+        <div class="field">
+          <label>Amount</label>
+          <input type="number" id="fAmount" step="0.01" placeholder="0.00" />
+        </div>
+        <div class="field">
+          <label>Status</label>
+          <select id="fStatus">
+            <option>Completed</option>
+            <option>Pending</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="cancel" id="modalCancel">Cancel</button>
+        <button class="save" id="modalSave">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="/js/dashboard.js"></script>
+</body>
+</html>

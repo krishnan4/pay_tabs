@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PayTabs | SysAdmin Login</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <div class="login-wrap">
+    <div class="login-logo">
+      <div class="mark">P</div>
+      <div class="brand"><span class="p">Pay</span>Tabs</div>
+    </div>
+
+    <div class="login-card">
+      <div class="login-lang">English</div>
+
+      <div id="error" class="error-msg"></div>
+
+      <form id="loginForm">
+        <div class="field">
+          <label for="email">Email</label>
+          <input type="email" id="email" placeholder="Email" autocomplete="username" required />
+        </div>
+        <div class="field">
+          <label for="password">Password</label>
+          <input type="password" id="password" placeholder="Password" autocomplete="current-password" required />
+        </div>
+        <button type="submit" class="btn" id="loginBtn">Sign In</button>
+      </form>
+
+      <div class="login-hint">
+        Demo login:<br />
+        <code>admin@paytabs.com</code> / <code>admin123</code>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/login.js"></script>
+</body>
+</html>

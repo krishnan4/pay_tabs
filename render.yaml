@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: paytabs-app
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: JWT_SECRET
+        generateValue: true
+      - key: DB_PATH
+        value: /var/data/data.db
+    disk:
+      name: paytabs-data
+      mountPath: /var/data
+      sizeGB: 1
