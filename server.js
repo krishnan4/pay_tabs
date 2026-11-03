@@ -45,8 +45,8 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // ---------- Database ----------
-// On Render/Railway use a persistent disk path if provided, else local file.
-const DB_PATH = process.env.DB_PATH || path.join(__dirname, 'data.db');
+// On Render/Railway/Vercel use persistent disk or /tmp if provided, else local file.
+const DB_PATH = process.env.DB_PATH || (process.env.VERCEL ? path.join('/tmp', 'data.db') : path.join(__dirname, 'data.db'));
 const db = new Database(DB_PATH);
 db.pragma('journal_mode = WAL');
 
@@ -241,3 +241,5 @@ app.get('*', (req, res) => {
 app.listen(PORT, () => {
   console.log(`PayTabs app running on http://localhost:${PORT}`);
 });
+
+module.exports = app;
